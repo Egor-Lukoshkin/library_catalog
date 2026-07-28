@@ -18,7 +18,6 @@ class Book(Base):
         UUID(as_uuid=True),
         primary_key=True,
         default=uuid.uuid4,
-        index=True,
     )
 
     title: Mapped[str] = mapped_column(
