@@ -1,5 +1,5 @@
 from collections.abc import Sequence
-from sqlalchemy import select
+from sqlalchemy import func, select
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from ..models.book import Book
@@ -59,3 +59,35 @@ class BookRepository(BaseRepository[Book]):
         result = await self.session.scalars(statement)
 
         return result.all()
+
+    async def count_filtered(
+            self,
+            *,
+            author: str | None = None,
+            genre: str | None = None,
+            year: int | None = None,
+            available: bool | None = None,
+    ) -> int:
+        """Подсчитать книги с учётом фильтров."""
+
+        statement = select(func.count(Book.book_id))
+
+        if author is not None:
+            statement = statement.where(
+                Book.author.ilike(f"%{author}%"),
+            )
+
+        if genre is not None:
+            statement = statement.where(
+                Book.genre.ilike(f"%{genre}%"),
+            )
+
+        if year is not None:
+            statement = statement.where(Book.year == year)
+
+        if available is not None:
+            statement = statement.where(Book.available == available)
+
+        result = await self.session.execute(statement)
+
+        return result.scalar_one()
