@@ -80,3 +80,10 @@ class BookService:
             book,
             **changes,
         )
+
+    async def delete_book(self, book_id: uuid.UUID) -> None:
+        """Удалить книгу."""
+
+        book = await self.get_book(book_id)
+
+        await self.repository.delete(book)
