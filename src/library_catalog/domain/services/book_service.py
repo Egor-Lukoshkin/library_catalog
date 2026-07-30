@@ -57,3 +57,26 @@ class BookService:
             description=description,
             extra=extra,
         )
+
+    async def update_book(
+            self,
+            book_id: uuid.UUID,
+            **changes: Any,
+    ) -> Book:
+        """Обновить книгу."""
+
+        book = await self.get_book(book_id)
+
+        if "isbn" in changes:
+            new_isbn = changes["isbn"]
+
+            if new_isbn is not None and new_isbn != book.isbn:
+                existing_book = await self.repository.get_by_isbn(new_isbn)
+
+                if existing_book is not None:
+                    raise BookIsbnAlreadyExistsError(new_isbn)
+
+        return await self.repository.update(
+            book,
+            **changes,
+        )
