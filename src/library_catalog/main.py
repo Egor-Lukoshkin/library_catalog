@@ -1,6 +1,10 @@
-from fastapi import FastAPI
+from fastapi import FastAPI, Request
 
+from .api.v1.router import api_router
 from .core.config import settings
+
+from fastapi.responses import JSONResponse
+from .domain.exceptions import BookNotFoundError
 
 app = FastAPI(
     title=settings.app_name,
@@ -8,6 +12,24 @@ app = FastAPI(
     version="1.0.0",
 )
 
+app.include_router(
+    api_router,
+    prefix=settings.api_v1_prefix,
+)
+
+@app.exception_handler(BookNotFoundError)
+async def book_not_found_handler(
+    _request: Request,
+    error: BookNotFoundError,
+) -> JSONResponse:
+    """Преобразовать ошибку отсутствующей книги в HTTP 404."""
+
+    return JSONResponse(
+        status_code=404,
+        content={
+            "detail": str(error),
+        },
+    )
 
 @app.get("/")
 async def root():

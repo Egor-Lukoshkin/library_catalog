@@ -14,6 +14,7 @@ class Settings(BaseSettings):
     ] = "development"
     debug: bool = True
     database_url: PostgresDsn
+    api_v1_prefix: str = "/api/v1"
 
     model_config = SettingsConfigDict(
         env_file=".env",
