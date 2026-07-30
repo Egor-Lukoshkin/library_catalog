@@ -1,5 +1,6 @@
 import uuid
 from typing import Any
+from collections.abc import Sequence
 
 from ...data.models.book import Book
 from ...data.repositories.book_repository import BookRepository
@@ -87,3 +88,33 @@ class BookService:
         book = await self.get_book(book_id)
 
         await self.repository.delete(book)
+
+    async def list_books(
+            self,
+            *,
+            author: str | None = None,
+            genre: str | None = None,
+            year: int | None = None,
+            available: bool | None = None,
+            limit: int = 20,
+            offset: int = 0,
+    ) -> tuple[Sequence[Book], int]:
+        """Получить список книг и их общее количество."""
+
+        books = await self.repository.get_filtered(
+            author=author,
+            genre=genre,
+            year=year,
+            available=available,
+            limit=limit,
+            offset=offset,
+        )
+
+        total = await self.repository.count_filtered(
+            author=author,
+            genre=genre,
+            year=year,
+            available=available,
+        )
+
+        return books, total
