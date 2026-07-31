@@ -4,7 +4,10 @@ from .api.v1.router import api_router
 from .core.config import settings
 
 from fastapi.responses import JSONResponse
-from .domain.exceptions import BookNotFoundError
+from .domain.exceptions import (
+    BookIsbnAlreadyExistsError,
+    BookNotFoundError,
+)
 
 app = FastAPI(
     title=settings.app_name,
@@ -26,6 +29,20 @@ async def book_not_found_handler(
 
     return JSONResponse(
         status_code=404,
+        content={
+            "detail": str(error),
+        },
+    )
+
+@app.exception_handler(BookIsbnAlreadyExistsError)
+async def book_isbn_already_exists_handler(
+    _request: Request,
+    error: BookIsbnAlreadyExistsError,
+) -> JSONResponse:
+    """Преобразовать конфликт ISBN в HTTP 409."""
+
+    return JSONResponse(
+        status_code=409,
         content={
             "detail": str(error),
         },
