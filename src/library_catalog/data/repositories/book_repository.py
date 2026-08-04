@@ -22,6 +22,7 @@ class BookRepository(BaseRepository[Book]):
     async def get_filtered(
             self,
             *,
+            title: str | None = None,
             author: str | None = None,
             genre: str | None = None,
             year: int | None = None,
@@ -33,6 +34,11 @@ class BookRepository(BaseRepository[Book]):
 
         statement = select(Book)
 
+        if title is not None:
+            statement = statement.where(
+                Book.title.ilike(f"%{title}%"),
+            )
+
         if author is not None:
             statement = statement.where(
                 Book.author.ilike(f"%{author}%"),
@@ -40,7 +46,7 @@ class BookRepository(BaseRepository[Book]):
 
         if genre is not None:
             statement = statement.where(
-                Book.genre.ilike(f"%{genre}%"),
+                Book.genre == genre,
             )
 
         if year is not None:
@@ -63,6 +69,7 @@ class BookRepository(BaseRepository[Book]):
     async def count_filtered(
             self,
             *,
+            title: str | None = None,
             author: str | None = None,
             genre: str | None = None,
             year: int | None = None,
@@ -72,6 +79,11 @@ class BookRepository(BaseRepository[Book]):
 
         statement = select(func.count(Book.book_id))
 
+        if title is not None:
+            statement = statement.where(
+                Book.title.ilike(f"%{title}%"),
+            )
+
         if author is not None:
             statement = statement.where(
                 Book.author.ilike(f"%{author}%"),
@@ -79,7 +91,7 @@ class BookRepository(BaseRepository[Book]):
 
         if genre is not None:
             statement = statement.where(
-                Book.genre.ilike(f"%{genre}%"),
+                Book.genre == genre,
             )
 
         if year is not None:

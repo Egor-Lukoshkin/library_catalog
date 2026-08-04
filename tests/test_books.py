@@ -347,3 +347,74 @@ async def test_delete_nonexistent_book_returns_404(
 
     assert response.status_code == 404
     assert str(book_id) in response.json()["detail"]
+
+@pytest.mark.asyncio
+async def test_list_books_filtered_by_title(
+    client: AsyncClient,
+) -> None:
+    first_payload = make_book_payload()
+
+    second_payload = make_book_payload()
+    second_payload["title"] = "Python Crash Course"
+    second_payload["author"] = "Eric Matthes"
+    second_payload["isbn"] = "9781718502703"
+
+    for payload in (first_payload, second_payload):
+        response = await client.post(
+            "/api/v1/books",
+            json=payload,
+        )
+        assert response.status_code == 201
+
+    response = await client.get(
+        "/api/v1/books",
+        params={
+            "title": "clean",
+        },
+    )
+
+    assert response.status_code == 200
+
+    body = response.json()
+
+    assert body["total"] == 1
+    assert len(body["items"]) == 1
+    assert body["items"][0]["title"] == first_payload["title"]
+    assert body["items"][0]["isbn"] == first_payload["isbn"]
+
+@pytest.mark.asyncio
+async def test_list_books_filtered_by_exact_genre(
+    client: AsyncClient,
+) -> None:
+    first_payload = make_book_payload()
+    first_payload["genre"] = "Programming"
+
+    second_payload = make_book_payload()
+    second_payload["title"] = "Python Crash Course"
+    second_payload["author"] = "Eric Matthes"
+    second_payload["genre"] = "Program"
+    second_payload["isbn"] = "9781718502703"
+
+    for payload in (first_payload, second_payload):
+        response = await client.post(
+            "/api/v1/books",
+            json=payload,
+        )
+        assert response.status_code == 201
+
+    response = await client.get(
+        "/api/v1/books",
+        params={
+            "genre": "Program",
+        },
+    )
+
+    assert response.status_code == 200
+
+    body = response.json()
+
+    assert body["total"] == 1
+    assert len(body["items"]) == 1
+    assert body["items"][0]["title"] == second_payload["title"]
+    assert body["items"][0]["genre"] == "Program"
+    assert body["items"][0]["isbn"] == second_payload["isbn"]

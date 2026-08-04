@@ -48,6 +48,15 @@ async def list_books(
         BookService,
         Depends(get_book_service),
     ],
+
+    title: Annotated[
+        str | None,
+        Query(
+            min_length=1,
+            max_length=500,
+        ),
+    ] = None,
+
     author: Annotated[
         str | None,
         Query(
@@ -85,6 +94,7 @@ async def list_books(
     """Получить список книг."""
 
     books, total = await service.list_books(
+        title=title,
         author=author,
         genre=genre,
         year=year,

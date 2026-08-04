@@ -92,6 +92,7 @@ class BookService:
     async def list_books(
             self,
             *,
+            title: str | None = None,
             author: str | None = None,
             genre: str | None = None,
             year: int | None = None,
@@ -102,6 +103,7 @@ class BookService:
         """Получить список книг и их общее количество."""
 
         books = await self.repository.get_filtered(
+            title=title,
             author=author,
             genre=genre,
             year=year,
@@ -111,6 +113,7 @@ class BookService:
         )
 
         total = await self.repository.count_filtered(
+            title=title,
             author=author,
             genre=genre,
             year=year,
