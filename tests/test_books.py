@@ -45,7 +45,10 @@ async def test_create_book(
     assert body["available"] is True
     assert body["isbn"] == payload["isbn"]
     assert body["description"] == payload["description"]
-    assert body["extra"] == payload["extra"]
+    assert body["extra"]["language"] == payload["extra"]["language"]
+    assert body["extra"]["openlibrary_key"] is not None
+    assert body["extra"]["title"] == payload["title"]
+    assert body["extra"]["authors"] == [payload["author"]]
     assert body["created_at"] is not None
     assert body["updated_at"] is not None
 
